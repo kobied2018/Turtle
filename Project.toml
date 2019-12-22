@@ -1,0 +1,13 @@
+name = "Turtle"
+uuid = "150822d0-2480-11ea-299c-39226cb6a4a5"
+authors = ["k.e <kobied@rnd-hub.com>"]
+version = "0.1.0"
+
+[compat]
+julia = "1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
