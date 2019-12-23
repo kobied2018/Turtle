@@ -1,4 +1,5 @@
 using Turtle
+import Turtle::bags
 using Test
 using Combinatorics
 

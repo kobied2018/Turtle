@@ -1,6 +1,9 @@
 module Turtle
 
-export bags
+import ReferenceFrameRotations
+using Makie
+
+# export bags
 export turtles
 
 mutable struct bags
@@ -33,23 +36,25 @@ mutable struct bags
     end
 end
 
-mutable struct pen
+mutable struct pens
     color::Symbol
     size::Int
     up::Bool
 
-    function pen(;color::Union{String,Symbol,AbstractFloat} = :blue, size = 5, up::Bool = true)
+    function pens(;color::Union{String,Symbol,AbstractFloat} = :blue, size = 5, up::Bool = true)
         new(color,size,up)
     end
 end
 
 mutable struct turtles
     bag::bags
+    pen::pens
     icon::String
     pos::Vector
     heading::AbstractFloat
+    worldSize::Vector
 
-    function turtles(;bag::bags = bags(), icon::String = "O", pos::Union{Array{T where T<:Real},Tuple} = vec([0.0,0.0]), heading::Real = 0.0)
+    function turtles(;pen::pens = pens(), bag::bags = bags(), icon::String = "O", pos::Union{Array{T where T<:Real},Tuple} = vec([0.0,0.0]), heading::Real = 0.0)
         if pos isa Tuple
             pos = collect(pos)
         end
@@ -62,10 +67,17 @@ mutable struct turtles
             DimensionMismatch("The new point to goto must have 2 elements [x,y]")
         end
 
-        new(bag,icon,pos,heading)
+        new(pen,bag,icon,pos,heading)
     end
 end
 
+
+"""
+     goto(turtle::turtles,newpos::Array{T where T<:Real})
+
+this function update the turtle position.
+the input is a new point in [x,y] coords that the turtle jump to.
+"""
 function goto(turtle::turtles,newpos::Array{T where T<:Real})
     if length(newpos) != 2
         DimensionMismatch("The new point to goto must have 2 elements [x,y]")
@@ -78,8 +90,40 @@ function goto(turtle::turtles,newpos::Array{T where T<:Real})
     turtle.pos = newpos
 end
 
-function cw()
-    body
-end
+
+"""
+    cw(turtle::turtles,ang::AbstractFloat)
+
+this function update the turtle heading clock wise direction.
+the input ang must be in [Rad], negative or positive angle
+are treated as positive.
+"""
+function cw(turtle::turtles,ang::AbstractFloat)
+    turtle.heading -= abs(ang)
+end # function cw
+
+
+"""
+    ccw(turtle::turtles,ang::AbstractFloat)
+
+this function update the turtle heading counter clock wise direction.
+the input ang must be in [Rad], negative or positive angle
+are treated as positive.
+"""
+function ccw(turtle::turtles,ang::AbstractFloat)
+    turtle.heading += abs(ang)
+end # function
+
+
+"""
+    forward(turtle::turtles,step::AbstractFloat)
+
+this function will advance the turtle forward in the heading direction
+for distance of 'step'
+"""
+function forward(turtle::turtles,step::AbstractFloat)
+    R = ReferenceFrameRotations.angle_to_dcm(turtle.heading,0,0)
+    turtle.pos += vec(step * R[1,1:2])
+end # function
 
 end # module
