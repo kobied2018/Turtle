@@ -1,10 +1,5 @@
-module Turtle
-
 import ReferenceFrameRotations
 using Makie
-
-export bags, pens
-export turtles
 
 mutable struct bags
     vertexes::Union{Matrix{T} where T<:Real,Tuple}
@@ -88,12 +83,12 @@ mutable struct turtles
 end
 
 """
-     goto(turtle::turtles,newpos::Array{T where T<:Real})
+     goto(turtle::turtles,newpos::Array{T} where T<:Real)
 
 this function update the turtle position.
 the input is a new point in [x,y] coords that the turtle jump to.
 """
-function goto(turtle::turtles,newpos::Array{T where T<:Real})
+function goto(turtle::turtles,newpos::Array{T}  where T<:Real)
     if length(newpos) != 2
         DimensionMismatch("The new point to goto must have 2 elements [x,y]")
     end
@@ -104,28 +99,29 @@ function goto(turtle::turtles,newpos::Array{T where T<:Real})
 
     turtle.pos = newpos
 end
+goto
 
 
 """
-    cw(turtle::turtles,ang::AbstractFloat)
+    cw(turtle::turtles,ang::Real)
 
 this function update the turtle heading clock wise direction.
 the input ang must be in [Rad], negative or positive angle
 are treated as positive.
 """
-function cw(turtle::turtles,ang::AbstractFloat)
+function cw(turtle::turtles,ang::Real)
     turtle.heading -= abs(ang)
 end # function cw
 
 
 """
-    ccw(turtle::turtles,ang::AbstractFloat)
+    ccw(turtle::turtles,ang::Real)
 
 this function update the turtle heading counter clock wise direction.
 the input ang must be in [Rad], negative or positive angle
 are treated as positive.
 """
-function ccw(turtle::turtles,ang::AbstractFloat)
+function ccw(turtle::turtles,ang::Real)
     turtle.heading += abs(ang)
 end # function
 
@@ -136,7 +132,7 @@ end # function
 this function will advance the turtle forward in the heading direction
 for distance of 'step'
 """
-function forward(turtle::turtles,step::AbstractFloat)
+function forward(turtle::turtles,step::Real)
     R = ReferenceFrameRotations.angle_to_dcm(turtle.heading,0,0)
     turtle.pos += vec(step * R[1,1:2])
 end # function
@@ -149,5 +145,3 @@ this function plot datain with in the turtle.main_scene
 function turtle_plot(data)
     body
 end # function
-
-end # module
