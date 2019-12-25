@@ -1,10 +1,11 @@
 import ReferenceFrameRotations
 using Makie
+RF = ReferenceFrameRotations
 
 mutable struct bags
     vertexes::Union{Matrix{T} where T<:Real,Tuple}
 
-    function bags(x::Union{Array{T} where T<:Real,Tuple} = vec([-350. -350. 350. 350.]), y::Union{Array{T} where T<:Real,Tuple} = vec([350. 0. 0. 350.]))
+    function bags(x::Union{Array{T} where T<:Real,Tuple} = vec([-350. -350. 350. 350.]), y::Union{Array{T} where T<:Real,Tuple} = vec([350. -350. -350. 350.]))
         if x isa Tuple
             x = collect(x)
         end
@@ -31,6 +32,7 @@ mutable struct bags
     end
 end
 
+
 mutable struct pens
     color::Symbol
     size::Int
@@ -41,17 +43,19 @@ mutable struct pens
     end
 end
 
+
 mutable struct turtles
     bag::bags
     pen::pens
-    icon::String
+    icon::Char
     pos::Vector
     heading::AbstractFloat
     main_scene::Scene
+    plt::Dict{String,AbstractPlot}
 
     function turtles(;  bag::bags = bags(),
                         pen::pens = pens(),
-                        icon::String = "O",
+                        icon::Char = '🐱',
                         pos::Union{Tuple,Array{T} where T<:Real} = vec([0.0,0.0]),
                         heading::Real = 0.0,
                         world_size::Union{Tuple,Vector{T} where T<:Real} = vec([600., 600.]))
@@ -75,12 +79,15 @@ mutable struct turtles
         if length(world_size) != 2
             DimensionMismatch("The worldSize must have 2 elements [width,hight]")
         end
-
+        plt = Dict{String,AbstractPlot}()
         main_scene = Scene(resolution = (world_size[1],world_size[2]))
-        lines!(main_scene,bag.vertexes[:,1],bag.vertexes[:,2])
+        plt["bag"] = lines!(main_scene,bag.vertexes[:,1],bag.vertexes[:,2])[end]
+        plt["turtle_path"] = lines!(main_scene,[0,1],[0,1])[end]
+        plt["turtle"] = scatter!(main_scene,[pos[1]],[pos[2]],marker = icon, markersize = 0.1*maximum(world_size))[end]
         new(bag,pen,icon,pos,heading,main_scene);
     end
 end
+
 
 """
      goto(turtle::turtles,newpos::Array{T} where T<:Real)
@@ -99,7 +106,7 @@ function goto(turtle::turtles,newpos::Array{T}  where T<:Real)
 
     turtle.pos = newpos
 end
-goto
+
 
 
 """
@@ -133,9 +140,10 @@ this function will advance the turtle forward in the heading direction
 for distance of 'step'
 """
 function forward(turtle::turtles,step::Real)
-    R = ReferenceFrameRotations.angle_to_dcm(turtle.heading,0,0)
+    R = RF.angle_to_dcm(turtle.heading,0,0)
     turtle.pos += vec(step * R[1,1:2])
 end # function
+
 
 """
     turtle_plot(data)
@@ -145,3 +153,31 @@ this function plot datain with in the turtle.main_scene
 function turtle_plot(data)
     body
 end # function
+
+
+
+
+
+
+
+using Makie
+import ReferenceFrameRotations
+RF = ReferenceFrameRotations
+plt = Dict{String,AbstractPlot}()
+world_size = [1000,1000]
+vertexes = [[-350;-350;350;350] [350;-350;-350;350]]
+icon = '🐱'
+heading = π/100
+myconvert(d::ReferenceFrameRotations.Quaternion{T} where T) = Quaternionf0(d.q0,d.q1,d.q2,d.q3)
+rot = myconvert(RF.angle_to_quat(heading,0,0))
+pos = [0,0]
+main_scene = Scene(resolution = (world_size[1],world_size[2]));
+lines!(main_scene,vertexes[:,1],vertexes[:,2]);
+plt["bag"] = main_scene[end];
+lines!(main_scene,[0,1],[0,1]);
+plt["turtle_path"] = main_scene[end];
+scatter!(main_scene,[pos[1]],[pos[2]],marker = icon, markersize = 0.1*maximum(world_size), rotation = rot);
+plt["turtle"] = main_scene[end];
+
+plt["turtle"].marker = icon
+plt["turtle"].rotation = normalize(rot)
