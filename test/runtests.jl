@@ -14,7 +14,7 @@ non_correct_bag_test = combinations(non_correct_bag_data_type,2)
     @testset "create a correct bag" begin
         for datain in correct_bag_test
             @test begin
-                mybag = bags(datain[1],datain[2])
+                mybag = Bags(datain[1],datain[2])
                 mybag.vertexes == correct_bag_test_output
             end
         end
@@ -22,7 +22,7 @@ non_correct_bag_test = combinations(non_correct_bag_data_type,2)
 
     @testset "create a non correct bag" begin
         for datain in non_correct_bag_test
-            @test_throws DimensionMismatch bags(datain[1],datain[2])
+            @test_throws DimensionMismatch Bags(datain[1],datain[2])
         end
     end
 
