@@ -8,8 +8,10 @@ gr()
 
 RF = ReferenceFrameRotations
 
-export Bags, Pens
-export Turtles
+#===================== Export Struct & Constructores =======================#
+export Bags, Pens, Turtles
+
+#============================ Export Functions =============================#
 export main_proj
 
 mutable struct DeafultVals
@@ -321,7 +323,7 @@ function draw_squares(  turtle::Turtles,
                         increase_step::Real,
                         do_till_escaped::Bool)
     res = false
-    escaped = draw_square(turtle, turn_rad, step; do_till_escaped = do_till_escaped)
+    escaped = draw_square(turtle, turn_rad, step, do_till_escaped)
     if do_till_escaped && escaped
         res = true
     else
@@ -332,7 +334,7 @@ function draw_squares(  turtle::Turtles,
             forward(turtle,increase_step)
             cw(turtle,π)
             pendown(turtle)
-            escaped = draw_square(turtle, 0, step + ii*2*increase_step; do_till_escaped = do_till_escaped)
+            escaped = draw_square(turtle, 0, step + ii*2*increase_step, do_till_escaped)
             if do_till_escaped && escaped
                 res = true
                 break
@@ -477,39 +479,46 @@ function get_my_input(dv::DeafultVals, ex)
         println("value entered = $(dv.step)")
     end
     if ex == :N
-        dv.N = popup_my_input(dv.step, "enter number of reapets, deafult = $(dv.N)")
+        dv.N = popup_my_input(dv.N, "enter number of reapets, deafult = $(dv.N)")
         println("value entered = $(dv.N)")
     end
     if ex == :ang
-        dv.ang = popup_my_input(dv.step, "enter triangle angle, in Rad, deafult = $(dv.ang)")
+        dv.ang = popup_my_input(dv.ang, "enter triangle angle, in Rad, deafult = $(dv.ang)")
         println("value entered = $(dv.ang)")
     end
     if ex == :increase_step
-        dv.increase_step = popup_my_input(dv.step, "enter step increase size, deafult = $(dv.increase_step)")
+        dv.increase_step = popup_my_input(dv.increase_step, "enter step increase size, deafult = $(dv.increase_step)")
         println("value entered = $(dv.increase_step)")
     end
     if ex == :do_till_escaped
-        dv.do_till_escaped = popup_my_input(dv.step, "enter do till escaped, deafult = $(dv.do_till_escaped)")
+        dv.do_till_escaped = popup_my_input(dv.do_till_escaped, "enter do_till_escaped, deafult = $(dv.do_till_escaped)")
         println("value entered = $(dv.do_till_escaped)")
     end
     println("===============================================================")
     println("")
-end # macro my_input
+end # function my_input
 
 
+#================================= MACROS ===================================#
+# see : https://discourse.julialang.org/t/undefvarerror-x-not-defined-when-calling-a-macro-outside-of-its-module/20201/3
+# for explanation on the use of 'esc' in macro
 macro run_type(type,func_type_dict,turtle,dv)
     quote
-        inputs_needed = get_inputs_list($func_type_dict[$type][1])
+        local _type = $(esc(type))
+        local _func_type_dict = $(esc(func_type_dict))
+        local _turtle = $(esc(turtle))
+        local _dv = $(esc(dv))
+        inputs_needed = get_inputs_list(_func_type_dict[_type][1])
         for (k,v) in inputs_needed
             if v == :turtle
                 continue
             end
-            get_my_input($dv,v)
+            get_my_input(_dv,v)
         end
-        if $dv.do_till_escaped
-            $func_type_dict[$type][3]($turtle,$dv)
+        if _dv.do_till_escaped
+            _func_type_dict[_type][3](_turtle,_dv)
         else
-            $func_type_dict[$type][2]($turtle,$dv)
+            _func_type_dict[_type][2](_turtle,_dv)
         end
     end
 end # macro run_type
@@ -590,7 +599,6 @@ function main_proj(move_type_in::String)
                             :triangles => [draw_triangles, main_triangles, main_triangles_till_escaped])
     move_type = Symbol(move_type_in)
     @run_type(move_type,func_type_dict,turtle,dv)
-    # @macroexpand @run_type(Symbol(moveType),func_type_dict,turtle,dv)
+    # @macroexpand @run_type(Symbol(moveType), func_type_dict, turtle, dv)
 end # function main_proj
-
-end # module
+end #module

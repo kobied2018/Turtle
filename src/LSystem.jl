@@ -1,3 +1,6 @@
+using Turtle
+
+# based on: https://github.com/cormullion/Lindenmayer.jl
 mutable struct LSystem
     rules::Dict{String, String}
     state::Array{Int64, 1}
@@ -56,71 +59,69 @@ end
     render(ls::LSystem)
 Once the LSystem has been evaluated, the LSystem.state can be drawn.
 """
-function render(ls::LSystem, t::Turtle, stepdistance, rotangle; debug=false)
+function render(ls::LSystem, t::Turtles, stepdistance, rotangle; debug=false)
     counter = 1
-    # set the color before we start
-    Pencolor(t, t.pencolor...)
     for a in ls.state
         command = string(Char(a))
         if command =="F"
-            Forward(t, stepdistance)
+            forward(t, stepdistance)
         elseif command =="G"
-            Forward(t, stepdistance)
+            forward(t, stepdistance)
         elseif command =="B"
-            Turn(t, 180)
-            Forward(t, stepdistance)
-            Turn(t, 180)
+            cw(t, π)
+            forward(t, stepdistance)
+            cw(t, π)
         elseif command =="V"
-            Turn(t, 180)
-            Forward(t, stepdistance)
-            Turn(t, 180)
+            cw(t, π)
+            forward(t, stepdistance)
+            cw(t, π)
         elseif command =="f"
-            Forward(t, stepdistance/2)
+            forward(t, stepdistance/2)
         elseif command =="b"
-            Turn(t, 180)
-            Forward(t, stepdistance/2)
+            cw(t, π)
+            forward(t, stepdistance/2)
         elseif command =="U"
-            Penup(t)
+            penup(t)
         elseif command =="D"
-            Pendown(t)
+            pendown(t)
         elseif command =="+"
-            Turn(t, rotangle)
+            cw(t, rotangle)
         elseif command =="-"
-            Turn(t, -rotangle)
+            ccw(t, rotangle)
         elseif command =="r"
-            rotangle = [10, 15, 30, 45, 60][rand(1:end)]
-        elseif command =="T"
-            randomhue()
-        elseif command =="t"
-            HueShift(t, 5) # shift hue round the Hue scale (0-360)
-        elseif command =="c"
-            Randomize_saturation(t) # shift saturation
-        elseif command =="O"
-            Pen_opacity_random(t)
+            rotangle = deg2rad.([10, 15, 30, 45, 60])[rand(1:end)]
+        # elseif command =="T"
+        #     randomhue()
+        # elseif command =="t"
+        #     HueShift(t, 5) # shift hue round the Hue scale (0-360)
+        # elseif command =="c"
+        #     Randomize_saturation(t) # shift saturation
+        # elseif command =="O"
+        #     Pen_opacity_random(t)
         elseif command =="l"
             stepdistance = stepdistance + 1 # larger
         elseif command =="s"
             stepdistance = stepdistance - 1 # smaller
         elseif command =="5"
-            Penwidth(t, 5)
+            t.pen.size = 5
         elseif command =="4"
-            Penwidth(t, 4)
+            t.pen.size = 4
         elseif command =="3"
-            Penwidth(t, 3)
+            t.pen.size = 3
         elseif command =="2"
-            Penwidth(t, 2)
+            t.pen.size = 2
         elseif command =="1"
-            Penwidth(t, 1)
+            t.pen.size = 1
         elseif command =="n"
-            Penwidth(t, 0.5)
+            t.pen.size = 0.5
         elseif command =="o"
             Circle(t, stepdistance/4)
         elseif command =="q"
             Rectangle(t, stepdistance/4, stepdistance/4)
         elseif command =="["
-            Push(t) # push
+            Push(t) # push //TODO - need to implimant
         elseif command =="]"
-            Pop(t)   # pop
+            Pop(t)   # pop //TODO - need to implimant
         end
         counter += 1
     end
