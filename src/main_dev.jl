@@ -292,8 +292,8 @@ function draw_lsystem(  turtle::Turtles,
                         iterations::Int)
     lsystem = LSystem(lsys_data[1],lsys_data[2])
     lsystem.state = lsystem.initial_state
-    evaluate(lsystem,iterations,debug = true)
-    render(lsystem, turtle, step, turn_rad, do_till_escaped, debug=true)
+    evaluate(lsystem,iterations,debug = false)
+    render(lsystem, turtle, step, turn_rad, do_till_escaped, debug = false)
     return true
 end # function draw_lsystem
 
