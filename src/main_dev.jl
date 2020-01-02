@@ -170,9 +170,9 @@ the function check if the turtle escaped the bag and return true or false
 function draw_line( turtle::Turtles,
                     turn_rad::Real,
                     step::Real)
-    if turn_rad <= 0
+    if turn_rad < 0
         cw(turtle,turn_rad)
-    else
+    elseif turn_rad > 0
         ccw(turtle,turn_rad)
     end
     forward(turtle,step)
@@ -291,8 +291,9 @@ function draw_lsystem(  turtle::Turtles,
                         turn_rad::Real,
                         iterations::Int)
     lsystem = LSystem(lsys_data[1],lsys_data[2])
-    evaluate(lsystem,iterations,debug = false)
-    render(lsystem, turtle, step, turn_rad, do_till_escaped, debug=false)
+    lsystem.state = lsystem.initial_state
+    evaluate(lsystem,iterations,debug = true)
+    render(lsystem, turtle, step, turn_rad, do_till_escaped, debug=true)
     return true
 end # function draw_lsystem
 
@@ -424,8 +425,9 @@ the needed value for the needed var
 function get_my_input(dv::DefaultVals, ex)
     println("give value to $(string(ex)) or press ENTER for deafult")
     if ex == :turn_rad
-        dv.turn_rad = popup_my_input(dv.turn_rad, "enter angle, in Rad, to rotate the turtle (positive -> ccw, negative -> cw), deafult = $(dv.turn_rad)")
-        println("value entered = $(dv.turn_rad)")
+        dv.turn_rad = popup_my_input(dv.turn_rad, "enter angle, in Deg, to rotate the turtle (positive -> ccw, negative -> cw), deafult = $(rad2deg(dv.turn_rad))")
+        dv.turn_rad = deg2rad(dv.turn_rad)
+        println("value entered = $(rad2deg(dv.turn_rad))")
     end
     if ex == :step
         dv.step = popup_my_input(dv.step, "enter step size, deafult = $(dv.step)")
@@ -452,7 +454,7 @@ function get_my_input(dv::DefaultVals, ex)
         println("value entered = $(dv.lsys_data)")
     end
     if ex == :iterations
-        dv.iterations = popup_my_input(dv.iterations, "enter lsys_data, deafult = $(dv.iterations)")
+        dv.iterations = popup_my_input(dv.iterations, "enter iterations, deafult = $(dv.iterations)")
         println("value entered = $(dv.iterations)")
     end
     println("===============================================================")
