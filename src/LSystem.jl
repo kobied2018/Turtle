@@ -1,4 +1,4 @@
-using Turtle
+include(raw"D:\gitRepository\my_proj\Genetic Algorithms and Machine learning\Turtle\src\Turtle_struct.jl")
 
 # based on: https://github.com/cormullion/Lindenmayer.jl
 mutable struct LSystem
@@ -114,14 +114,14 @@ function render(ls::LSystem, t::Turtles, stepdistance, rotangle; debug=false)
             t.pen.size = 1
         elseif command =="n"
             t.pen.size = 0.5
-        elseif command =="o"
-            Circle(t, stepdistance/4)
-        elseif command =="q"
-            Rectangle(t, stepdistance/4, stepdistance/4)
+        # elseif command =="o"
+            # Circle(t, stepdistance/4)
+        # elseif command =="q"
+            # Rectangle(t, stepdistance/4, stepdistance/4)
         elseif command =="["
-            Push(t) # push //TODO - need to implimant
+            push!(t) # push //TODO - need to implimant
         elseif command =="]"
-            Pop(t)   # pop //TODO - need to implimant
+            pop!(t)   # pop //TODO - need to implimant
         end
         counter += 1
     end
