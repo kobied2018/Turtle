@@ -1,21 +1,27 @@
 using Plots
 
-mutable struct DeafultVals
+mutable struct DefaultVals
     turn_rad::Real
     step::Real
     do_till_escaped::Bool
     N::Int
     increase_step::Real
     ang::Real
+    lsys_data::Tuple
+    iterations::Int
 
-    function DeafultVals()
+    function DefaultVals()
         turn_rad = 0
         step = 100
         do_till_escaped = false
         N = 10
         increase_step = 50
         ang = deg2rad(120)
-        new(turn_rad,step,do_till_escaped,N,increase_step,ang)
+        lsys_data = (Dict("L" => "L+RF+",
+                    "R" => "-FL-R"),
+                    "L")
+        iterations = 3
+        new(turn_rad,step,do_till_escaped,N,increase_step,ang,lsys_data,iterations)
     end
 end
 

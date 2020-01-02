@@ -7,9 +7,6 @@ gr()
 
 RF = ReferenceFrameRotations
 
-
-
-
 #========================= Function =======================================#
 
 """
@@ -147,7 +144,7 @@ end # function store_position_data
 
 this function push the current turtle position into vector 'turtle.junctions'
 """
-function push(turtle::Turtles)
+function Base.push!(turtle::Turtles)
     push!(turtle.junctions,turtle.pos)
 end # function push!
 
@@ -157,7 +154,7 @@ end # function push!
 
 this function pop the last position data from 'turtle.junctions' vector
 """
-function pop!(turtle::Turtles)
+function Base.pop!(turtle::Turtles)
     return pop!(turtle.junctions)
 end # function pop!
 
@@ -171,8 +168,8 @@ then move the turtle at the new direction distance of 'step'
 the function check if the turtle escaped the bag and return true or false
 """
 function draw_line( turtle::Turtles,
-                    turn_rad::Real = 0,
-                    step::Real = 100)
+                    turn_rad::Real,
+                    step::Real)
     if turn_rad <= 0
         cw(turtle,turn_rad)
     else
@@ -283,6 +280,24 @@ end # function draw_triangles
 
 
 """
+    draw_lsystem(turtle::Turtles, lsys_data::Dict, do_till_escaped::Bool, lsys_data::Tuple, step::Real, turn_rad::Real, iterations::Int)
+
+this function will draw a Lsystem expration
+"""
+function draw_lsystem(  turtle::Turtles,
+                        do_till_escaped::Bool,
+                        lsys_data::Tuple,
+                        step::Real,
+                        turn_rad::Real,
+                        iterations::Int)
+    lsystem = LSystem(lsys_data[1],lsys_data[2])
+    evaluate(lsystem,iterations,debug = false)
+    render(lsystem, turtle, step, turn_rad, do_till_escaped, debug=false)
+    return true
+end # function draw_lsystem
+
+
+"""
     save_to_file(turtle::Turtles)
 
 this function save the turtle.history data to csv file
@@ -325,20 +340,53 @@ end # function save_to_file
 
 
 """
-    input(prompt::String = "", df_val::DeafultVals)::String
+    input(prompt::String = "", df_val::DefaultVals)::String
 
 this function ask the user to enter needed params for the called function
 """
 function popup_my_input(df_val, prompt::String = "")
-    println(prompt)
-    str = chomp(readline())
-    if isempty(str)
-        val = df_val
+    if df_val isa Tuple
+        println(prompt)
+        d = Dict{String,String}()
+        addData = true
+        while addData
+            println("\nEnter Var")
+            varStr = chomp(readline())
+            if isempty(varStr)
+                println("default value was taken")
+                d = df_val[1]
+                addData = false
+                break
+            end
+            println("Enter Expration")
+            expStr = chomp(readline())
+            println("recived $varStr => $expStr as Lsystm Expration")
+            if haskey(d,varStr)
+                println("Var exsist enter a new one")
+            else
+                d[varStr] = expStr
+            end
+        end
+        println("\nEnter the starting point")
+        startStr = chomp(readline())
+        if isempty(startStr)
+            startStr = df_val[2]
+        else
+            println("default value was taken")
+            println("recived starting point = $startStr")
+        end
+        val = (d,startStr)
     else
-        val = parse(typeof(df_val),str)
+        println(prompt)
+        str = chomp(readline())
+        if isempty(str)
+            val = df_val
+        else
+            val = parse(typeof(df_val),str)
+        end
     end
     return val
-end # function input
+end # function popup_my_input
 
 
 """
@@ -349,7 +397,7 @@ this function extract the given function, it's input argumant list
 function get_inputs_list(f::Function)
     list = []
     for m in methods(f)
-        push!(list,m.slot_syms)
+        push!(list,string.(Base.method_argnames(m))...)
     end
     inputlist = Dict{String,Symbol}()
     for str in list
@@ -368,12 +416,12 @@ end # function get_inputs_list
 
 
 """
-    get_my_input(dv::DeafultVals, ex)
+    get_my_input(dv::DefaultVals, ex)
 
 this function call the function 'popup_my_input', to ask for the user to enter
 the needed value for the needed var
 """
-function get_my_input(dv::DeafultVals, ex)
+function get_my_input(dv::DefaultVals, ex)
     println("give value to $(string(ex)) or press ENTER for deafult")
     if ex == :turn_rad
         dv.turn_rad = popup_my_input(dv.turn_rad, "enter angle, in Rad, to rotate the turtle (positive -> ccw, negative -> cw), deafult = $(dv.turn_rad)")
@@ -398,6 +446,14 @@ function get_my_input(dv::DeafultVals, ex)
     if ex == :do_till_escaped
         dv.do_till_escaped = popup_my_input(dv.do_till_escaped, "enter do_till_escaped, deafult = $(dv.do_till_escaped)")
         println("value entered = $(dv.do_till_escaped)")
+    end
+    if ex == :lsys_data
+        dv.lsys_data = popup_my_input(dv.lsys_data, "enter lsys_data, deafult = $(dv.lsys_data)")
+        println("value entered = $(dv.lsys_data)")
+    end
+    if ex == :iterations
+        dv.iterations = popup_my_input(dv.iterations, "enter lsys_data, deafult = $(dv.iterations)")
+        println("value entered = $(dv.iterations)")
     end
     println("===============================================================")
     println("")
@@ -429,7 +485,7 @@ macro run_type(type,func_type_dict,turtle,dv)
 end # macro run_type
 
 # ------------------------  Tests -------------------------------------------
-function main_line(turtle::Turtles, dv::DeafultVals)
+function main_line(turtle::Turtles, dv::DefaultVals)
     # turtle = Turtles()
     draw_line(turtle,dv.turn_rad,dv.step)
     turtle_plot(turtle)
@@ -438,7 +494,7 @@ function main_line(turtle::Turtles, dv::DeafultVals)
 end
 
 
-function main_line_till_escaped(turtle::Turtles, dv::DeafultVals)
+function main_line_till_escaped(turtle::Turtles, dv::DefaultVals)
     # turtle = Turtles()
     escaped = false
     while !escaped
@@ -450,7 +506,7 @@ function main_line_till_escaped(turtle::Turtles, dv::DeafultVals)
 end
 
 
-function main_squares(turtle::Turtles, dv::DeafultVals)
+function main_squares(turtle::Turtles, dv::DefaultVals)
     # turtle = Turtles()
     draw_squares(turtle,dv.N,dv.turn_rad,dv.step,dv.increase_step,dv.do_till_escaped)
     turtle_plot(turtle)
@@ -459,7 +515,7 @@ function main_squares(turtle::Turtles, dv::DeafultVals)
 end
 
 
-function main_squares_till_escaped(turtle::Turtles, dv::DeafultVals)
+function main_squares_till_escaped(turtle::Turtles, dv::DefaultVals)
     # turtle = Turtles()
     escaped = false
     while !escaped
@@ -471,7 +527,7 @@ function main_squares_till_escaped(turtle::Turtles, dv::DeafultVals)
 end
 
 
-function main_triangles(turtle::Turtles, dv::DeafultVals)
+function main_triangles(turtle::Turtles, dv::DefaultVals)
     # turtle = Turtles()
     draw_triangles(turtle, dv.turn_rad, dv.N, dv.ang, dv.step, dv.increase_step, dv.do_till_escaped)
     turtle_plot(turtle)
@@ -479,7 +535,7 @@ function main_triangles(turtle::Turtles, dv::DeafultVals)
     return turtle.plt
 end
 
-function main_triangles_till_escaped(turtle::Turtles, dv::DeafultVals)
+function main_triangles_till_escaped(turtle::Turtles, dv::DefaultVals)
     # turtle = Turtles()
     escaped = false
     while !escaped
@@ -491,6 +547,13 @@ function main_triangles_till_escaped(turtle::Turtles, dv::DeafultVals)
 end
 
 
+function main_Lsystem(turtle::Turtles,dv::DefaultVals)
+    draw_lsystem(turtle, dv.do_till_escaped, dv.lsys_data, dv.step, dv.turn_rad, dv.iterations)
+    turtle_plot(turtle)
+    save_to_file(turtle,"main_Lsystem")
+    return turtle.plt
+end
+
 """
     main_porj(moveType::String, stop_condition::String; N::Int, trun_rad::Real)
 
@@ -498,10 +561,11 @@ documentation
 """
 function main_proj(move_type_in::String)
     turtle = Turtles()
-    dv = DeafultVals()
+    dv = DefaultVals()
     func_type_dict = Dict(  :line => [draw_line, main_line, main_line_till_escaped],
                             :squares => [draw_squares, main_squares, main_squares_till_escaped],
-                            :triangles => [draw_triangles, main_triangles, main_triangles_till_escaped])
+                            :triangles => [draw_triangles, main_triangles, main_triangles_till_escaped],
+                            :lsystem => [draw_lsystem,main_Lsystem,main_Lsystem])
     move_type = Symbol(move_type_in)
     @run_type(move_type,func_type_dict,turtle,dv)
     # @macroexpand @run_type(Symbol(moveType), func_type_dict, turtle, dv)

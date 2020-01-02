@@ -14,7 +14,7 @@ export Bags, Pens, Turtles
 #============================ Export Functions =============================#
 export main_proj
 
-mutable struct DeafultVals
+mutable struct DefaultVals
     turn_rad::Real
     step::Real
     do_till_escaped::Bool
@@ -22,7 +22,7 @@ mutable struct DeafultVals
     increase_step::Real
     ang::Real
 
-    function DeafultVals()
+    function DefaultVals()
         turn_rad = 0
         step = 100
         do_till_escaped = false
@@ -420,7 +420,7 @@ end # function save_to_file
 
 
 """
-    input(prompt::String = "", df_val::DeafultVals)::String
+    input(prompt::String = "", df_val::DefaultVals)::String
 
 this function ask the user to enter needed params for the called function
 """
@@ -463,12 +463,12 @@ end # function get_inputs_list
 
 
 """
-    get_my_input(dv::DeafultVals, ex)
+    get_my_input(dv::DefaultVals, ex)
 
 this function call the function 'popup_my_input', to ask for the user to enter
 the needed value for the needed var
 """
-function get_my_input(dv::DeafultVals, ex)
+function get_my_input(dv::DefaultVals, ex)
     println("give value to $(string(ex)) or press ENTER for deafult")
     if ex == :turn_rad
         dv.turn_rad = popup_my_input(dv.turn_rad, "enter angle, in Rad, to rotate the turtle (positive -> ccw, negative -> cw), deafult = $(dv.turn_rad)")
@@ -524,7 +524,7 @@ macro run_type(type,func_type_dict,turtle,dv)
 end # macro run_type
 
 # ------------------------  Tests -------------------------------------------
-function main_line(turtle::Turtles, dv::DeafultVals)
+function main_line(turtle::Turtles, dv::DefaultVals)
     # turtle = Turtles()
     draw_line(turtle,dv.turn_rad,dv.step)
     turtle_plot(turtle)
@@ -533,7 +533,7 @@ function main_line(turtle::Turtles, dv::DeafultVals)
 end
 
 
-function main_line_till_escaped(turtle::Turtles, dv::DeafultVals)
+function main_line_till_escaped(turtle::Turtles, dv::DefaultVals)
     # turtle = Turtles()
     escaped = false
     while !escaped
@@ -545,7 +545,7 @@ function main_line_till_escaped(turtle::Turtles, dv::DeafultVals)
 end
 
 
-function main_squares(turtle::Turtles, dv::DeafultVals)
+function main_squares(turtle::Turtles, dv::DefaultVals)
     # turtle = Turtles()
     draw_squares(turtle,dv.N,dv.turn_rad,dv.step,dv.increase_step,dv.do_till_escaped)
     turtle_plot(turtle)
@@ -554,7 +554,7 @@ function main_squares(turtle::Turtles, dv::DeafultVals)
 end
 
 
-function main_squares_till_escaped(turtle::Turtles, dv::DeafultVals)
+function main_squares_till_escaped(turtle::Turtles, dv::DefaultVals)
     # turtle = Turtles()
     escaped = false
     while !escaped
@@ -566,7 +566,7 @@ function main_squares_till_escaped(turtle::Turtles, dv::DeafultVals)
 end
 
 
-function main_triangles(turtle::Turtles, dv::DeafultVals)
+function main_triangles(turtle::Turtles, dv::DefaultVals)
     # turtle = Turtles()
     draw_triangles(turtle, dv.turn_rad, dv.N, dv.ang, dv.step, dv.increase_step, dv.do_till_escaped)
     turtle_plot(turtle)
@@ -574,7 +574,7 @@ function main_triangles(turtle::Turtles, dv::DeafultVals)
     return turtle.plt
 end
 
-function main_triangles_till_escaped(turtle::Turtles, dv::DeafultVals)
+function main_triangles_till_escaped(turtle::Turtles, dv::DefaultVals)
     # turtle = Turtles()
     escaped = false
     while !escaped
@@ -593,7 +593,7 @@ documentation
 """
 function main_proj(move_type_in::String)
     turtle = Turtles()
-    dv = DeafultVals()
+    dv = DefaultVals()
     func_type_dict = Dict(  :line => [draw_line, main_line, main_line_till_escaped],
                             :squares => [draw_squares, main_squares, main_squares_till_escaped],
                             :triangles => [draw_triangles, main_triangles, main_triangles_till_escaped])

@@ -59,27 +59,28 @@ end
     render(ls::LSystem)
 Once the LSystem has been evaluated, the LSystem.state can be drawn.
 """
-function render(ls::LSystem, t::Turtles, stepdistance, rotangle; debug=false)
+function render(ls::LSystem, t::Turtles, stepdistance, rotangle, do_till_escaped; debug=false)
     counter = 1
+    escaped = false
     for a in ls.state
         command = string(Char(a))
         if command =="F"
-            forward(t, stepdistance)
+            escaped = draw_line(t, 0, stepdistance)
         elseif command =="G"
-            forward(t, stepdistance)
+            escaped = draw_line(t, 0, stepdistance)
         elseif command =="B"
             cw(t, π)
-            forward(t, stepdistance)
+            escaped = draw_line(t, 0, stepdistance)
             cw(t, π)
         elseif command =="V"
             cw(t, π)
-            forward(t, stepdistance)
+            escaped = draw_line(t, 0, stepdistance)
             cw(t, π)
         elseif command =="f"
-            forward(t, stepdistance/2)
+            escaped = draw_line(t, 0, stepdistance/2)
         elseif command =="b"
             cw(t, π)
-            forward(t, stepdistance/2)
+            escaped = draw_line(t, 0, stepdistance/2)
         elseif command =="U"
             penup(t)
         elseif command =="D"
@@ -124,6 +125,9 @@ function render(ls::LSystem, t::Turtles, stepdistance, rotangle; debug=false)
             pop!(t)   # pop //TODO - need to implimant
         end
         counter += 1
+        if do_till_escaped && escaped
+            break
+        end
     end
-    counter
+    return (counter,escaped)
 end
