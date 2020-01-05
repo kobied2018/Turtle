@@ -1,4 +1,4 @@
-include(raw"D:\gitRepository\my_proj\Genetic Algorithms and Machine learning\Turtle\src\Turtle_struct.jl")
+include(joinpath(@__DIR__,"Turtle_struct.jl"))
 
 # based on: https://github.com/cormullion/Lindenmayer.jl
 mutable struct LSystem

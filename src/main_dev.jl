@@ -1,6 +1,7 @@
 import ReferenceFrameRotations
-include(raw"D:\gitRepository\my_proj\Genetic Algorithms and Machine learning\Turtle\src\Turtle_struct.jl")
-include(raw"D:\gitRepository\my_proj\Genetic Algorithms and Machine learning\Turtle\src\LSystem.jl")
+path = @__DIR__
+include(joinpath(path,"Turtle_struct.jl"))
+include(joinpath(path,"LSystem.jl"))
 using Plots
 using CSV, DataFrames
 gr()
