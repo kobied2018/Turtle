@@ -342,7 +342,7 @@ end # function save_to_file
 
 
 """
-    input(prompt::String = "", df_val::DefaultVals)::String
+    popup_my_input(prompt::String = "", df_val::DefaultVals)
 
 this function ask the user to enter needed params for the called function
 """
